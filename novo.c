@@ -40,7 +40,7 @@ void	mandelbrot(t_mlx *mlx, int x, int y, double cr, double ci)
 	double	zi;	// Imaginary part of Z
 	double	tmp;	// Temporary variable
 	// Variable to determine if a number is in the set or not:
-	int	is_in_set; 
+	int	is_in_set;
 
 	zr = 0;
 	zi = 0;
@@ -55,7 +55,7 @@ void	mandelbrot(t_mlx *mlx, int x, int y, double cr, double ci)
 			// If the absolute value of Z exceeds 2
 			// (zr * zr + zi * zi) > 4.0 == sqrt(zr * zr + zi * zi) > 2
 			is_in_set = 0;
-			// We flag that this number tends toward infinity, 
+			// We flag that this number tends toward infinity,
 			// and is therefore not part of the set
 			// and we stop iterating
 			break ;
@@ -123,29 +123,39 @@ int	muda_cor(int tecla, t_mlx *mlx)
 		mlx->color += 0x0f00f110;
 	if (tecla == XK_d)
 		mlx->color -= 0x0f00f110;
-	if (tecla == XK_Down)
+	if (tecla == XK_x)
 	{
-		mlx->frac.min_r -= 0.115;
-		mlx->frac.max_r += 0.115;
-		mlx->frac.min_i -= 0.115;
+		mlx->frac.min_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.max_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.min_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
+	}
+	if (tecla == XK_z)
+	{
+		mlx->frac.min_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.max_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.min_i += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
 	}
 	if (tecla == XK_Up)
 	{
-		mlx->frac.min_r += 0.115;
-		mlx->frac.max_r -= 0.115;
-		mlx->frac.min_i += 0.115;
-		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
+		mlx->frac.min_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.max_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+	}
+	if (tecla == XK_Down)
+	{
+		mlx->frac.min_i += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.max_i += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 	}
 	if (tecla == XK_Left)
 	{
-		mlx->frac.min_r -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
-		mlx->frac.max_r -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.min_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.max_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 	}
 	if (tecla == XK_Right)
 	{
-		mlx->frac.min_r += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
-		mlx->frac.max_r += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.min_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.max_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 	}
 	return (0);
 }
@@ -161,7 +171,7 @@ int	pinta_linha(t_mlx *mlx)
 		mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, -50, 0);
 	} */
 	draw_fractal(mlx);
-	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
+	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 75, 75);
 	return (0);
 }
 
@@ -186,7 +196,7 @@ int	main(void)
 	// Value of complex numbers on bottom edge of window:
 	mlx.frac.max_i = mlx.frac.min_i + (mlx.frac.max_r - mlx.frac.min_r) * HEIGHT / WIDTH;
 }
-	
+
 	mlx_loop_hook(mlx.mlx, &pinta_linha, &mlx);
 	mlx_hook(mlx.win, KeyPress, KeyPressMask, &muda_cor, &mlx);
 
