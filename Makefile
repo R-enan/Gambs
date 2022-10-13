@@ -17,9 +17,9 @@ rm:
 tes: %(Tes) :
 	echo Teste $(Tes)
 
-MESSAGE=
+m=
 git:
 	git add .
-	git commit -m "$(MESSAGE)"
+	git commit -m "$(m)"
 	git push
 .PHONY: git
