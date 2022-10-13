@@ -18,7 +18,7 @@ tes: %(Tes) :
 	echo Teste $(Tes)
 
 MESSAGE=
-git: % :
+git:
 	git add .
 	git commit -m "$(MESSAGE)"
 	git push
