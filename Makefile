@@ -17,7 +17,6 @@ rm:
 tes: %(Tes) :
 	echo Teste $(Tes)
 
-m=
 git:
 	git add .
 	git commit -m "$(m)"
