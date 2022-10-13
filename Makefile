@@ -13,3 +13,13 @@ $(FILES):
 
 rm:
 	rm -f fractol vgcore*
+
+tes: %(Tes) :
+	echo Teste $(Tes)
+
+MESSAGE=
+git: % :
+	git add .
+	git commit -m "$(MESSAGE)"
+	git push
+.PHONY: git
