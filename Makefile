@@ -18,8 +18,8 @@ tes: %(Tes) :
 	echo Teste $(Tes)
 
 git:
-	git add .
-	git commit -m "$(m)"
-	git push
+	@git add .
+	@git commit -m "$(m)"
+	@git push
 	
 .PHONY: git
