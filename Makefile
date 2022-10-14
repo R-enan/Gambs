@@ -8,7 +8,7 @@ all:
 
 $(FILES):
 	clang $@.c -lX11 -lXext -lmlx -Imlx -lXext -o fractol
-#	valgrind --track-origins=yes --leak-check=full -s ./fractol
+#	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s ./fractol
 	./fractol
 
 rm:
@@ -21,4 +21,5 @@ git:
 	git add .
 	git commit -m "$(m)"
 	git push
+	
 .PHONY: git

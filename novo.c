@@ -11,10 +11,10 @@
 // Structure for the fractol variables
 typedef struct  s_fractol
 {
-	double  min_r;	// Minimum value of real axis
-	double  max_r;	// Maximum value of real axis
-	double  min_i;	// Minimum value of imaginary axis
-	double  max_i;	// Maximum value of imaginary axis
+	long double  min_r;	// Minimum value of real axis
+	long double  max_r;	// Maximum value of real axis
+	long double  min_i;	// Minimum value of imaginary axis
+	long double  max_i;	// Maximum value of imaginary axis
 }   t_fractol;
 
 typedef struct s_mlx
@@ -33,12 +33,12 @@ typedef struct s_mlx
 
 void	pixel_put(t_mlx *data, int x, int y, int color);
 
-void	mandelbrot(t_mlx *mlx, int x, int y, double cr, double ci)
+void	mandelbrot(t_mlx *mlx, int x, int y, long double cr, long double ci)
 {
 	int	n;	// Number of iterations
-	double	zr;	// Real part of Z
-	double	zi;	// Imaginary part of Z
-	double	tmp;	// Temporary variable
+	long double	zr;	// Real part of Z
+	long double	zi;	// Imaginary part of Z
+	long double	tmp;	// Temporary variable
 	// Variable to determine if a number is in the set or not:
 	int	is_in_set;
 
@@ -46,7 +46,7 @@ void	mandelbrot(t_mlx *mlx, int x, int y, double cr, double ci)
 	zi = 0;
 	n = -1;
 	is_in_set = 1;
-	while (++n < MAX_ITERATIONS)
+	while (++n < MAX_ITERATIONS + mlx->tes)
 	{
 		// As long as we're not at the maximum number of iterations,
 		// we iterate
@@ -70,11 +70,13 @@ void	mandelbrot(t_mlx *mlx, int x, int y, double cr, double ci)
 	if (is_in_set == 1)
 		//mlx_pixel_put(mlx->mlx, mlx->win, x, y, mlx->color);
 		pixel_put(mlx, x, y, mlx->color);
-	else if (n >= MAX_ITERATIONS / 2)
+	/*else if (n > MAX_ITERATIONS / 2)
 		//mlx_pixel_put(mlx->mlx, mlx->win, x, y,  0xFFFFFF / mlx->color);
-		pixel_put(mlx, x, y, mlx->color + 0x00FFFF * n);
+		pixel_put(mlx, x, y, (0xFFFFFF - 0x000000) * n + 0x000000);*/
 	else
-		pixel_put(mlx, x, y, mlx->color * 0x00FFFF * n);
+		pixel_put(mlx, x, y, mlx->color * 0xFFFFFF * n);
+		//pixel_put(mlx, x, y, mlx->color * 0xFFFFFF * n);
+		//(endValue - startValue) * stepNumber / lastStepNumber + startValue
 }
 
 void	draw_fractal(t_mlx *f)
@@ -84,8 +86,8 @@ void	draw_fractal(t_mlx *f)
 	int	y; // line
 	// to map the x and y coordinates of the pixel to a
 	// complex number:
-	double	pr; // real part of the complex number of the pixel
-	double	pi; // imaginary part of the complex number of the pixel
+	long double	pr; // real part of the complex number of the pixel
+	long double	pi; // imaginary part of the complex number of the pixel
 
 	// Loop over each line and column of the window
 	// to check each pixels
@@ -96,8 +98,8 @@ void	draw_fractal(t_mlx *f)
 		while (++x < WIDTH) // column loop
 		{
 			// Find pixel[x, y]'s corresponding complex number
-			pr = f->frac.min_r + (double)x * (f->frac.max_r - f->frac.min_r) / WIDTH;
-			pi = f->frac.min_i + (double)y * (f->frac.max_i - f->frac.min_i) / HEIGHT;
+			pr = f->frac.min_r + (long double)x * (f->frac.max_r - f->frac.min_r) / WIDTH;
+			pi = f->frac.min_i + (long double)y * (f->frac.max_i - f->frac.min_i) / HEIGHT;
 			// Evaluate it and set this pixel's color
 			mandelbrot(f, x, y, pr, pi);
 		}
@@ -129,6 +131,9 @@ int	muda_cor(int tecla, t_mlx *mlx)
 		mlx->frac.max_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 		mlx->frac.min_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
+		if (mlx->tes > 1)
+			mlx->tes -= 0.5;
+		
 	}
 	if (tecla == XK_z)
 	{
@@ -136,6 +141,7 @@ int	muda_cor(int tecla, t_mlx *mlx)
 		mlx->frac.max_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 		mlx->frac.min_i += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
+		mlx->tes += 0.5;
 	}
 	if (tecla == XK_Up)
 	{
@@ -149,13 +155,15 @@ int	muda_cor(int tecla, t_mlx *mlx)
 	}
 	if (tecla == XK_Left)
 	{
-		mlx->frac.min_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
-		mlx->frac.max_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.min_r -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.max_r -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
+		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
 	}
 	if (tecla == XK_Right)
 	{
 		mlx->frac.min_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 		mlx->frac.max_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
+		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
 	}
 	return (0);
 }
@@ -205,5 +213,10 @@ int	main(void)
 	mlx_destroy_image(mlx.mlx, mlx.img);
 	mlx_destroy_display(mlx.mlx);
 	free(mlx.mlx);
+	free(mlx.addr);
 	return (0);
 }
+
+/***
+Threads: http://cocic.cm.utfpr.edu.br/progconcorrente/doku.php?id=c_pthreads
+***/
