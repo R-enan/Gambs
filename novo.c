@@ -4,7 +4,7 @@
 #include <X11/keysym.h>
 #include <X11/X.h>
 
-#define MAX_ITERATIONS 80 // Maximum number of iterations
+#define MAX_ITERATIONS 200 // Maximum number of iterations
 #define WIDTH 600	// Width of the window (in pixels)
 #define HEIGHT 600	// Height of the window (in pixels)
 
@@ -17,6 +17,7 @@ typedef struct  s_fractol
 	long double  max_i;	// Maximum value of imaginary axis
 }   t_fractol;
 
+// Struct of mlx
 typedef struct s_mlx
 {
 	void	*mlx;
@@ -31,8 +32,10 @@ typedef struct s_mlx
 	t_fractol	frac;
 }			t_mlx;
 
+// Function of Aurelien Brabant
 void	pixel_put(t_mlx *data, int x, int y, int color);
 
+// Funcion of Mcombeau
 void	mandelbrot(t_mlx *mlx, int x, int y, long double cr, long double ci)
 {
 	int	n;	// Number of iterations
@@ -65,16 +68,22 @@ void	mandelbrot(t_mlx *mlx, int x, int y, long double cr, long double ci)
 		zr = zr * zr - zi * zi + cr;
 		zi = tmp;
 	}
+
+	/**************************************************************
+	*
+	*	Aqui só pintamos com cores diferenciadas.
+	*
+	**************************************************************/
 	// If the number is part of the Mandelbrot set,
 	// set the pixel to black, otherwise to white
 	if (is_in_set == 1)
 		//mlx_pixel_put(mlx->mlx, mlx->win, x, y, mlx->color);
-		pixel_put(mlx, x, y, mlx->color);
+		pixel_put(mlx, x, y, mlx->color); // Aqui é o Mandelbrot
 	/*else if (n > MAX_ITERATIONS / 2)
 		//mlx_pixel_put(mlx->mlx, mlx->win, x, y,  0xFFFFFF / mlx->color);
 		pixel_put(mlx, x, y, (0xFFFFFF - 0x000000) * n + 0x000000);*/
 	else
-		pixel_put(mlx, x, y, mlx->color * 0xFFFFFF * n);
+		pixel_put(mlx, x, y, mlx->color * 0xFFFFFF * n); // Aqui é as bordas;
 		//pixel_put(mlx, x, y, mlx->color * 0xFFFFFF * n);
 		//(endValue - startValue) * stepNumber / lastStepNumber + startValue
 }
@@ -114,17 +123,22 @@ void	pixel_put(t_mlx *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
+// Aqui é uma função que captura a leitura do teclado.
 int	muda_cor(int tecla, t_mlx *mlx)
 {
+	// Destrói janela
 	if (tecla == XK_Escape)
 	{
 		mlx_destroy_window(mlx->mlx, mlx->win);
 		mlx->win = NULL;
 	}
+	// Muda cores
 	if (tecla == XK_a)
 		mlx->color += 0x0f00f110;
 	if (tecla == XK_d)
 		mlx->color -= 0x0f00f110;
+	
+	// Zoom out
 	if (tecla == XK_x)
 	{
 		mlx->frac.min_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
@@ -132,17 +146,19 @@ int	muda_cor(int tecla, t_mlx *mlx)
 		mlx->frac.min_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
 		if (mlx->tes > 1)
-			mlx->tes -= 0.5;
-		
+			mlx->tes -= 0.5; // Para melhoramento de imagens
 	}
+	// Zoom in
 	if (tecla == XK_z)
 	{
 		mlx->frac.min_r += (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 		mlx->frac.max_r -= (mlx->frac.max_i - mlx->frac.min_i) * 0.115;
 		mlx->frac.min_i += (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
 		mlx->frac.max_i = mlx->frac.min_i + (mlx->frac.max_r - mlx->frac.min_r) * HEIGHT / WIDTH;
-		mlx->tes += 0.5;
+		mlx->tes += 0.5; // Para melhoramento de imagens
 	}
+
+	// Movimento "a câmera"
 	if (tecla == XK_Up)
 	{
 		mlx->frac.min_i -= (mlx->frac.max_r - mlx->frac.min_r) * 0.115;
@@ -168,6 +184,7 @@ int	muda_cor(int tecla, t_mlx *mlx)
 	return (0);
 }
 
+// Loop Hook (pra evento de pintar janela)
 int	pinta_linha(t_mlx *mlx)
 {
 	/* for (int i = 0; i < 300; i++)
@@ -193,9 +210,11 @@ int	main(void)
 	mlx.addr = mlx_get_data_addr(mlx.img, &mlx.bpp, &mlx.line_len, &mlx.endian);
 
 {
+	// Cor inicial
 	mlx.color = 0x0000FF;
 	mlx.tes = 0;
 
+	// Coordenadas do plano inicial
 	mlx.frac.min_r = -2.0;
 	// Value of complex numbers on right edge of window:
 	mlx.frac.max_r = 1.0;
@@ -205,15 +224,19 @@ int	main(void)
 	mlx.frac.max_i = mlx.frac.min_i + (mlx.frac.max_r - mlx.frac.min_r) * HEIGHT / WIDTH;
 }
 
+	// Inserir evento de janela
 	mlx_loop_hook(mlx.mlx, &pinta_linha, &mlx);
+
+	// Inserir evento de captura de teclado
 	mlx_hook(mlx.win, KeyPress, KeyPressMask, &muda_cor, &mlx);
 
+	// Mostra a janela
 	mlx_loop(mlx.mlx);
 
+	// frees e destroys padrão
 	mlx_destroy_image(mlx.mlx, mlx.img);
 	mlx_destroy_display(mlx.mlx);
 	free(mlx.mlx);
-	free(mlx.addr);
 	return (0);
 }
 
