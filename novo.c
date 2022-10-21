@@ -5,7 +5,7 @@
 #include <X11/X.h>
 #include <stdio.h>
 
-#define MAX_ITERATIONS 100 // Maximum number of iterations
+#define MAX_ITERATIONS 500 // Maximum number of iterations
 #define WIDTH 800	// Width of the window (in pixels)
 #define HEIGHT 800	// Height of the window (in pixels)
 
@@ -183,15 +183,15 @@ int	muda_cor(int tecla, t_mlx *mlx)
 	}
 	if (tecla == XK_Left)
 	{
-		mlx->frac->min_r -= (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
-		mlx->frac->max_r -= (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
-		mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+		mlx->frac->min_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		mlx->frac->max_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		
 	}
 	if (tecla == XK_Right)
 	{
 		mlx->frac->min_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
 		mlx->frac->max_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
-		mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+
 	}
 
 	// Reseta tudo
@@ -222,18 +222,18 @@ int	pinta_linha(t_mlx *mlx)
 	return (0);
 }
 
-int	teste_mouse(int keymask, int y, t_mlx *mlx)
+int	teste_mouse(int keymask, int x, int y, t_mlx *mlx)
 {
 	printf("\nEvento: %d\n", keymask);
 	if (keymask == 4)
 	{
-
+		zoom_in(mlx);
 	}
 	else if (keymask == 5)
 	{
-
+		zoom_out(mlx);
 	}
-	printf("Coordenadas: (%d, %d)\n", y, y);
+	printf("Coordenadas: (%d, %d)\n", x, y);
 	return (0);
 }
 
