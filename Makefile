@@ -17,5 +17,8 @@ git:
 	@git add .
 	@git commit -m "$(m)"
 	@git push
+
+file:
+	@touch $(f).c && code-server $(f).c
 	
 .PHONY: git

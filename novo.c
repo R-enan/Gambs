@@ -5,7 +5,7 @@
 #include <X11/X.h>
 #include <stdio.h>
 
-#define MAX_ITERATIONS 500 // Maximum number of iterations
+#define MAX_ITERATIONS 80 // Maximum number of iterations
 #define WIDTH 800	// Width of the window (in pixels)
 #define HEIGHT 800	// Height of the window (in pixels)
 
@@ -16,20 +16,20 @@ typedef struct  s_fractol
 	long double  max_r;	// Maximum value of real axis
 	long double  min_i;	// Minimum value of imaginary axis
 	long double  max_i;	// Maximum value of imaginary axis
-}   t_fractol;
+}	t_fractol;
 
 // Struct of mlx
 typedef struct s_mlx
 {
-	void	*mlx;
-	void	*win;
-	void	*img;
-	char	*addr;
-	int		bpp;
-	int		line_len;
-	int		endian;
-	int		color;
-	int		tes;
+	void		*mlx;
+	void		*win;
+	void		*img;
+	char		*addr;
+	int			bpp;
+	int			line_len;
+	int			endian;
+	int			color;
+	int			tes;
 	t_fractol	*frac;
 }			t_mlx;
 
@@ -102,16 +102,29 @@ void	draw_fractal(t_mlx *f)
 	// Loop over each line and column of the window
 	// to check each pixels
 	y = -1;
-	while (++y < HEIGHT) // line loop
+	while (++y < HEIGHT / 2) // line loop
 	{
-		x = -1;
-		while (++x < WIDTH) // column loop
+		x = y;
+		while (x <= WIDTH - y) // column loop
 		{
 			// Find pixel[x, y]'s corresponding complex number
-			pr = f->frac->min_r + (long double)x * (f->frac->max_r - f->frac->min_r) / WIDTH;
-			pi = f->frac->min_i + (long double)y * (f->frac->max_i - f->frac->min_i) / HEIGHT;
+			pr = f->frac->min_r + x * (f->frac->max_r - f->frac->min_r) / WIDTH;
+			pi = f->frac->min_i + y * (f->frac->max_i - f->frac->min_i) / HEIGHT;
 			// Evaluate it and set this pixel's color
 			mandelbrot(f, x, y, pr, pi);
+			
+			pr = f->frac->min_r + y * (f->frac->max_r - f->frac->min_r) / WIDTH;
+			pi = f->frac->min_i + x * (f->frac->max_i - f->frac->min_i) / HEIGHT;
+			mandelbrot(f, y, x, pr, pi);
+			
+			pr = f->frac->min_r + (WIDTH - x) * (f->frac->max_r - f->frac->min_r) / WIDTH;
+			pi = f->frac->min_i + (HEIGHT - y) * (f->frac->max_i - f->frac->min_i) / HEIGHT;
+			mandelbrot(f, WIDTH - x, HEIGHT - y, pr, pi);
+			
+			pr = f->frac->min_r + (HEIGHT - y) * (f->frac->max_r - f->frac->min_r) / WIDTH;
+			pi = f->frac->min_i + (WIDTH - x) * (f->frac->max_i - f->frac->min_i) / HEIGHT;
+			mandelbrot(f, HEIGHT - y, WIDTH - x, pr, pi);
+			x++;
 		}
 	}
 }
@@ -126,31 +139,31 @@ void	pixel_put(t_mlx *data, int x, int y, int color)
 
 void	zoom_in(t_mlx *mlx)
 {
-	mlx->frac->min_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
-	mlx->frac->max_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
-	mlx->frac->min_i += (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
-	mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+	if (mlx->tes < 800)
+	{	
+		mlx->frac->min_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		mlx->frac->max_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		mlx->frac->min_i += (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
+		mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+		mlx->tes += 5;
+	}
 }
 
 void	zoom_out(t_mlx *mlx)
 {
-	mlx->frac->min_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
-	mlx->frac->max_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
-	mlx->frac->min_i -= (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
-	mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+	if (mlx->tes > -MAX_ITERATIONS + 5)
+	{	
+		mlx->frac->min_r -= (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		mlx->frac->max_r += (mlx->frac->max_i - mlx->frac->min_i) * 0.115;
+		mlx->frac->min_i -= (mlx->frac->max_r - mlx->frac->min_r) * 0.115;
+		mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+		mlx->tes -= 5;
+	}
 }
 
 // Aqui é uma função que captura a leitura do teclado.
 int	muda_cor(int tecla, t_mlx *mlx)
 {
-	// Destrói janela
-	if (tecla == XK_Escape)
-	{
-		//mlx_destroy_image(mlx->mlx, mlx->img);
-		mlx_destroy_window(mlx->mlx, mlx->win);
-		//mlx_destroy_display(mlx->mlx);
-		mlx->win = NULL;
-	}
 	// Muda cores
 	if (tecla == XK_a)
 		mlx->color += 0x0f00f110;
@@ -159,16 +172,10 @@ int	muda_cor(int tecla, t_mlx *mlx)
 	
 	// Zoom out
 	if (tecla == XK_x)
-	{
 		zoom_out(mlx);
-		mlx->tes -= 0.5; // Para melhoramento de imagens
-	}
 	// Zoom in
 	if (tecla == XK_z)
-	{
 		zoom_in(mlx);
-		mlx->tes += 0.5; // Para melhoramento de imagens
-	}
 
 	// Movimento "a câmera"
 	if (tecla == XK_Up)
@@ -201,6 +208,15 @@ int	muda_cor(int tecla, t_mlx *mlx)
 		mlx->frac->max_r = 1;
 		mlx->frac->min_i = -1.5;
 		mlx->frac->max_i = mlx->frac->min_i + (mlx->frac->max_r - mlx->frac->min_r) * HEIGHT / WIDTH;
+		mlx->tes = 0;
+	}
+	// Destrói janela
+	if (tecla == XK_Escape)
+	{
+		//mlx_destroy_image(mlx->mlx, mlx->img);
+		mlx_destroy_window(mlx->mlx, mlx->win);
+		//mlx_destroy_display(mlx->mlx);
+		mlx->win = NULL;
 	}
 	return (0);
 }
@@ -216,6 +232,7 @@ int	pinta_linha(t_mlx *mlx)
 			pixel_put(mlx, i/2 + 10, i + 10, mlx->color);
 		mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, -50, 0);
 	} */
+	
 	draw_fractal(mlx);
 	if (mlx->win)
 		mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
