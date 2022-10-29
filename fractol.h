@@ -6,12 +6,17 @@
 /*   By: rleite-s < rleite-s@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 21:49:22 by rleite-s          #+#    #+#             */
-/*   Updated: 2022/10/27 22:55:01 by rleite-s         ###   ########.fr       */
+/*   Updated: 2022/10/29 07:11:26 by rleite-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FRACTOL_H
 # define FRACTOL_H
+
+# include <mlx.h>
+# include <stdlib.h>
+# include <X11/keysym.h>
+# include <X11/X.h>
 
 #define MAX_ITERATIONS 80
 #define WIDTH 800

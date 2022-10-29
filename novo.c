@@ -164,13 +164,10 @@ void	zoom_out(t_mlx *mlx)
 // Aqui é uma função que captura a leitura do teclado.
 int	muda_cor(int tecla, t_mlx *mlx)
 {
-	// Muda cores
 	if (tecla == XK_a)
 		mlx->color += 0x0f00f110;
 	if (tecla == XK_d)
 		mlx->color -= 0x0f00f110;
-	
-	// Zoom out
 	if (tecla == XK_x)
 		zoom_out(mlx);
 	// Zoom in
@@ -256,6 +253,8 @@ int	teste_mouse(int keymask, int x, int y, t_mlx *mlx)
 
 int		mlx_mouse_move(void *mlx, void *win, int x, int y)
 {
+	mlx += 0;
+	win += 0;
 	printf("(%d, %d)\t", x, y);
 	return (0);
 }

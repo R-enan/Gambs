@@ -1,12 +1,44 @@
+NAME	= fractol
 
-FILES = teste mcombeau fractol novo frac2 gamb
+FILES		= mlx.c events.c mandelbrot.c moves.c screen_print.c
+OBJ			= $(FILES:.c=.o)
 
-all:
-	cc fractol.c -lX11 -lXext -lmlx -Imlx -o fractol
-	valgrind ./fractol
+CFLAGS		= -Wall -Werror -Wextra
+MLXFLAGS	= -lX11 -lXext -lmlx 
+MLXINCLUDE	= -Imlx
 
-$(FILES):
-	cc $@.c -lX11 -lXext -lmlx -Imlx -o fractol
+RM		= rm -f
+
+%.o: %.c
+	cc $(CFLAGS) -c $< $(MLXINCLUDE) -o $@
+
+all: $(NAME)
+
+$(NAME): $(OBJ)
+	cc $(CFLAGS) $^ $(MLXINCLUDE) $(MLXFLAGS) -o $@
+
+clean:
+	$(RM) $(OBJ)
+
+fclean: clean
+	$(RM) $(NAME)
+
+re: fclean all
+
+.PHONY: all clean fclean re
+
+
+
+#
+# SE LEMBRE DE APAGAR o que vier embaixo
+# SE LEMBRE DE APAGAR o que vier embaixo
+# SE LEMBRE DE APAGAR o que vier embaixo
+#
+
+AQUI = teste mcombeau novo frac2 gamb
+
+$(AQUI):
+	cc $(CFLAGS) $@.c -Imlx -lX11 -lXext -lmlx  -o fractol
 #	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s ./fractol
 	./fractol
 
